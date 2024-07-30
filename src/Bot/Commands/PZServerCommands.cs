@@ -140,8 +140,13 @@ public class PZServerCommands : ModuleBase<SocketCommandContext>
         {
             Logger.WriteLog(string.Format("[PZServerCommand - abort_restart] Caller: {0}", Context.User.ToString()));
             
-            ServerUtility.ResetServerRestartInterval();
-            ServerUtility.Commands.ServerMsg(Localization.Get("disc_cmd_abort_restart_ok_server").KeyFormat(("minutes", Scheduler.GetItem("ServerRestart").NextExecuteTime.Subtract(DateTime.Now).TotalMinutes)));
+            if(Application.BotSettings.ServerScheduleSettings.ServerRestartScheduleType.ToLower() == "time")
+                ServerUtility.AbortNextTimedServerRestart = true;
+            else
+                ServerUtility.ResetServerRestartInterval();
+            
+            // ServerUtility.Commands.ServerMsg(Localization.Get("disc_cmd_abort_restart_ok_server").KeyFormat(("minutes", Scheduler.GetItem("ServerRestart").NextExecuteTime.Subtract(DateTime.Now).TotalMinutes)));
+            ServerUtility.Commands.ServerMsg(Localization.Get("disc_cmd_abort_restart_ok_disc"));
 
             await Context.Message.AddReactionAsync(EmojiList.GreenCheck);
             await Context.Channel.SendMessageAsync(Localization.Get("disc_cmd_abort_restart_ok_disc"));
